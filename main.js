@@ -1,114 +1,98 @@
+// main.js
 const readline = require('readline');
-const db = require('./db');
-require('./events/logger'); // Initialize event logger
+const db = require('./db/mongo'); // MongoDB backend
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-function menu() {
-  console.log(`
-===== NodeVault =====
-1. Add Record
-2. List Records
-3. Update Record
-4. Delete Record
-5. Exit
-6. Search Records
-7. Sort Records
-8. Export Data
-9. View Vault Statistics
+// Helper to prompt user
+function question(prompt) {
+  return new Promise(resolve => rl.question(prompt, resolve));
+}
 
-=====================
-  `);
+async function mainMenu() {
+  while (true) {
+    console.log('\n===== NodeVault =====');
+    console.log('1. Add Record');
+    console.log('2. List Records');
+    console.log('3. Update Record');
+    console.log('4. Delete Record');
+    console.log('5. Exit');
+    console.log('6. Search Records');
+    console.log('7. Sort Records');
+    console.log('8. Export Data');
+    console.log('9. Display Statistics');
+    console.log('=====================');
 
-  rl.question('Choose option: ', ans => {
-    switch (ans.trim()) {
+    const choice = await question('Choose option: ');
+
+    switch (choice) {
       case '1':
-        rl.question('Enter name: ', name => {
-          rl.question('Enter value: ', value => {
-            db.addRecord({ name, value });
-            console.log('✅ Record added successfully!');
-            menu();
-          });
-        });
+        const name = await question('Enter name: ');
+        const value = await question('Enter value: ');
+        const added = await db.addRecord({ name, value });
+        console.log('Record added:', added);
         break;
 
       case '2':
-        const records = db.listRecords();
-        if (records.length === 0) console.log('No records found.');
-        else records.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
-        menu();
+        const allRecords = await db.listRecords();
+        console.table(allRecords);
         break;
 
       case '3':
-        rl.question('Enter record ID to update: ', id => {
-          rl.question('New name: ', name => {
-            rl.question('New value: ', value => {
-              const updated = db.updateRecord(Number(id), name, value);
-              console.log(updated ? '✅ Record updated!' : '❌ Record not found.');
-              menu();
-            });
-          });
-        });
+        const updateId = parseInt(await question('Enter ID to update: '), 10);
+        const newName = await question('Enter new name: ');
+        const newValue = await question('Enter new value: ');
+        const updated = await db.updateRecord(updateId, newName, newValue);
+        if (updated) console.log('Updated:', updated);
+        else console.log('Record not found');
         break;
 
       case '4':
-        rl.question('Enter record ID to delete: ', id => {
-          const deleted = db.deleteRecord(Number(id));
-          console.log(deleted ? '🗑️ Record deleted!' : '❌ Record not found.');
-          menu();
-        });
+        const deleteId = parseInt(await question('Enter ID to delete: '), 10);
+        const deleted = await db.deleteRecord(deleteId);
+        if (deleted) console.log('Deleted:', deleted);
+        else console.log('Record not found');
         break;
 
       case '5':
-        console.log('👋 Exiting NodeVault...');
+        console.log('Exiting...');
         rl.close();
+        process.exit(0);
         break;
-	case '6':
-  rl.question('Enter search keyword: ', keyword => {
-    const records = db.searchRecords(keyword);
-    if (records.length === 0) {
-      console.log("No records found.");
-    } else {
-      console.log(`Found ${records.length} matching records:`);
-      records.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
-    }
-    menu();
-  });
-  break;
-	case '7':
-  rl.question('Sort by (name/date): ', field => {
-    rl.question('Order (asc/desc): ', order => {
-      const sorted = db.sortRecords(field, order);
-      console.log("Sorted Records:");
-      sorted.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
-      menu();
-    });
-  });
-  break;
-	case '8':
-  db.exportData();
-  console.log("Data exported successfully to export.txt");
-  menu();
-  break;
-case '9':
-  const stats = db.getStatistics();
-  console.log("Vault Statistics:\n-------------------------");
-  console.log(`Total Records: ${stats.total}`);
-  console.log(`Last Modified: ${stats.lastModified}`);
-  console.log(`Longest Name: ${stats.longestName}`);
-  console.log(`Earliest Record: ${stats.earliest}`);
-  console.log(`Latest Record: ${stats.latest}`);
-  menu();
-  break;
+
+      case '6':
+        const keyword = await question('Enter search keyword: ');
+        const results = await db.searchRecords(keyword);
+        console.table(results);
+        break;
+
+      case '7':
+        const field = await question('Sort by field (id/name): ');
+        const order = await question('Order (asc/desc): ');
+        const sorted = await db.sortRecords(field, order);
+        console.table(sorted);
+        break;
+
+      case '8':
+        await db.exportData();
+        console.log('Data exported to export.txt');
+        break;
+
+      case '9':
+        const stats = await db.getStatistics();
+        console.log('Statistics:', stats);
+        break;
 
       default:
-        console.log('Invalid option.');
-        menu();
+        console.log('Invalid choice');
+        break;
     }
-  });
+  }
 }
 
-menu();
+// Start the menu
+mainMenu().catch(err => console.error(err));
+

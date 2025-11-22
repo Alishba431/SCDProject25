@@ -1,15 +1,19 @@
-Export Date: 2025-11-22T12:12:43.418Z
-Total Records: 3
+Export Date: 2025-11-22T17:33:49.207Z
+Total Records: 4
 
-ID: 1763810126370
-Name: alishba
+ID: 1763831687244
+Name: ali
 Value: 10
 ---
-ID: 1763810582905
-Name: ali
-Value: 1
+ID: 1763831703632
+Name: alishba
+Value: 19
 ---
-ID: 1763810841823
-Name: ali
-Value: 1
+ID: 1763831900761
+Name: ume
+Value: 24
+---
+ID: 1763832789881
+Name: azan
+Value: 34
 ---
