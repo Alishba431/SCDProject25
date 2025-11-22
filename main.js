@@ -18,6 +18,7 @@ function menu() {
 6. Search Records
 7. Sort Records
 8. Export Data
+9. View Vault Statistics
 
 =====================
   `);
@@ -90,6 +91,16 @@ function menu() {
 	case '8':
   db.exportData();
   console.log("Data exported successfully to export.txt");
+  menu();
+  break;
+case '9':
+  const stats = db.getStatistics();
+  console.log("Vault Statistics:\n-------------------------");
+  console.log(`Total Records: ${stats.total}`);
+  console.log(`Last Modified: ${stats.lastModified}`);
+  console.log(`Longest Name: ${stats.longestName}`);
+  console.log(`Earliest Record: ${stats.earliest}`);
+  console.log(`Latest Record: ${stats.latest}`);
   menu();
   break;
 

@@ -82,6 +82,18 @@ function createBackup(data) {
 
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
 }
+function getStatistics() {
+  const data = fileDB.readDB();
+  if (data.length === 0) return {};
+
+  return {
+    total: data.length,
+    lastModified: new Date(Math.max(...data.map(r => r.id))).toISOString(),
+    longestName: data.reduce((a, b) => a.name.length > b.name.length ? a : b).name,
+    earliest: new Date(Math.min(...data.map(r => r.id))).toISOString(),
+    latest: new Date(Math.max(...data.map(r => r.id))).toISOString()
+  };
+}
  
-module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords, exportData };
+module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords, exportData, getStatistics };
 
