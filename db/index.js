@@ -1,6 +1,8 @@
 const fileDB = require('./file');
 const recordUtils = require('./record');
 const vaultEvents = require('../events');
+const fs = require('fs');
+const path = require('path');
 
 function addRecord({ name, value }) {
   recordUtils.validateRecord({ name, value });
@@ -9,6 +11,8 @@ function addRecord({ name, value }) {
   data.push(newRecord);
   fileDB.writeDB(data);
   vaultEvents.emit('recordAdded', newRecord);
+  fileDB.writeDB(data);
+  createBackup(data);
   return newRecord;
 }
 
@@ -34,6 +38,8 @@ function deleteRecord(id) {
   data = data.filter(r => r.id !== id);
   fileDB.writeDB(data);
   vaultEvents.emit('recordDeleted', record);
+   fileDB.writeDB(data);
+  createBackup(data);
   return record;
 }
 function searchRecords(keyword) {
@@ -56,6 +62,8 @@ function sortRecords(field, order) {
     if (x > y) return order === 'asc' ? 1 : -1;
     return 0;
   });
+  return sorted;
+}
 function exportData() {
   const data = fileDB.readDB();
   const text =
@@ -65,8 +73,15 @@ function exportData() {
 
   fs.writeFileSync('export.txt', text);
 }
+function createBackup(data) {
+  const dir = path.join(__dirname, '..', 'backups');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 
-  return sorted;
+  const filename = `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+  const filepath = path.join(dir, filename);
+
+  fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
 }
+ 
 module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords, exportData };
 
