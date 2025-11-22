@@ -36,5 +36,15 @@ function deleteRecord(id) {
   vaultEvents.emit('recordDeleted', record);
   return record;
 }
+function searchRecords(keyword) {
+  const data = fileDB.readDB();
+  keyword = keyword.toLowerCase();
+  return data.filter(r =>
+    r.name.toLowerCase().includes(keyword) ||
+    String(r.id).includes(keyword)
+  );
+}
+
+module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords };
 
 module.exports = { addRecord, listRecords, updateRecord, deleteRecord };
