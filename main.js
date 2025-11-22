@@ -16,6 +16,7 @@ function menu() {
 4. Delete Record
 5. Exit
 6. Search Records
+7. Sort Records
 
 =====================
   `);
@@ -73,6 +74,16 @@ function menu() {
       records.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
     }
     menu();
+  });
+  break;
+	case '7':
+  rl.question('Sort by (name/date): ', field => {
+    rl.question('Order (asc/desc): ', order => {
+      const sorted = db.sortRecords(field, order);
+      console.log("Sorted Records:");
+      sorted.forEach(r => console.log(`ID: ${r.id} | Name: ${r.name} | Value: ${r.value}`));
+      menu();
+    });
   });
   break;
 

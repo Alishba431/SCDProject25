@@ -44,7 +44,20 @@ function searchRecords(keyword) {
     String(r.id).includes(keyword)
   );
 }
+function sortRecords(field, order) {
+  const data = fileDB.readDB();
+  const sorted = [...data];
 
-module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords };
+  sorted.sort((a, b) => {
+    let x = field === 'date' ? a.id : a.name.toLowerCase();
+    let y = field === 'date' ? b.id : b.name.toLowerCase();
 
-module.exports = { addRecord, listRecords, updateRecord, deleteRecord };
+    if (x < y) return order === 'asc' ? -1 : 1;
+    if (x > y) return order === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  return sorted;
+}
+module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords };
+
