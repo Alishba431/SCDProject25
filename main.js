@@ -17,6 +17,7 @@ function menu() {
 5. Exit
 6. Search Records
 7. Sort Records
+8. Export Data
 
 =====================
   `);
@@ -85,6 +86,11 @@ function menu() {
       menu();
     });
   });
+  break;
+	case '8':
+  db.exportData();
+  console.log("Data exported successfully to export.txt");
+  menu();
   break;
 
       default:

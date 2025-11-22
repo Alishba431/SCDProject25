@@ -56,8 +56,17 @@ function sortRecords(field, order) {
     if (x > y) return order === 'asc' ? 1 : -1;
     return 0;
   });
+function exportData() {
+  const data = fileDB.readDB();
+  const text =
+    `Export Date: ${new Date().toISOString()}\n` +
+    `Total Records: ${data.length}\n\n` +
+    data.map(r => `ID: ${r.id}\nName: ${r.name}\nValue: ${r.value}\n---\n`).join("");
+
+  fs.writeFileSync('export.txt', text);
+}
 
   return sorted;
 }
-module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords };
+module.exports = { addRecord, listRecords, updateRecord, deleteRecord, searchRecords, sortRecords, exportData };
 
